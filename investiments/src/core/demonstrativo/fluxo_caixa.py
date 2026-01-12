@@ -1,4 +1,5 @@
 from investiments.src.core.usecases.executeFromTo import executeFromTo
+from investiments.src.utils.consultas.expenses_mapping import expenses_mapping
 from investiments.src.utils.consultas.fees_info import fees_info
 from investiments.src.utils.data_loader import DataLoader
 from investiments.src.utils.consultas.cash_flow_info import cash_flow_info
@@ -28,7 +29,7 @@ class FluxoDeCaixa:
         if not cash_flow.empty:
             cash_flow['Historico'] = cash_flow['Historico'].apply(normalize_text)
 
-            cash_flow = executeFromTo(cash_flow, 'Historico')
+            cash_flow = executeFromTo(cash_flow, 'Historico', expenses_mapping)
 
             cash_flow['Cod Fundo'] = cash_flow['Cod Fundo'].str.zfill(6)
 

@@ -1,7 +1,5 @@
-rename_datas = {
-    'ALTERNA MIRANTE FICM': 'ALTERNATIVOS MIR FIM',
-    'BB ACOES GL HEDGE IE': 'BB ACOES GLOBAIS FIA',
-    'FIC DE FI AÇÕES IBRX': 'FIC DE FI ACOES IBRX',
+""""Mapping for expenses descriptions to standardized expense categories."""
+expenses_mapping = {
     'TX DE CONTROLADORIA S/ TX DE ADMIN.*': 'TAXA DE CONTROLADORIA',
     'TAXA DE CONTROL. S/ TX.*': 'TAXA DE CONTROLADORIA',
 
@@ -11,7 +9,6 @@ rename_datas = {
     'TAXA DE CUSTODIA BRUTA.*': 'TAXA DE CUSTODIA',
     r'IOF .*': 'IOF',
     #'DESPESA DE B 10.*': 'DESPESA B 10 - TARIFA DE LIQUIDACAO FINANCEIRA',
-    "17760": "017760",
 
     'AJUSTE DE TARIFA DE LIQUIDACAO FINANCEIRA*' : '(AJUSTE) TARIFA DE LIQUIDACAO FINANCEIRA',
     'AJUSTE DE TAXA CETIP*' : '(AJUSTE) TAXA CETIP',

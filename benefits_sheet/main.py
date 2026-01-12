@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-
+from datetime import datetime
 from benefits_sheet.utils.AccountingAccount import AccountingAccount
 from src.Emprestimos import Emprestimos
 from src.Provisao import Provisao
@@ -8,7 +8,7 @@ from src.Deducao import Deducao
 from src.ContabilizarBeneficios import ContabilizarBeneficios
 from utils.tools import limparTexto
 
-data_pagamento = "2025-07-02"
+data_pagamento = "2025-07-29"
 
 BASE_PATH = os.path.expanduser('~\\Documents')
 beneficios = os.path.join(BASE_PATH, 'data', 'processed', 'folha_beneficios_processado.csv')
@@ -33,6 +33,38 @@ if __name__ == "__main__":
     emprestimos = Emprestimos(df, data_competencia).criarEmprestimos()
     provisao = Provisao(df, data_competencia).criarProvisao()
     deducao = Deducao(df, data_competencia, consulta_beneficios).criarDeducao()
+
+    # --- Validação de valores na Planilha2 ---
+    colunas_verificar = ['Tipo de beneficio', 'Item folha']  # Colunas que você quer conferir
+    colunas_ok_geral = []
+
+    for df_nome, df_lanc in [("Deducao", deducao), ("Emprestimos", emprestimos), ("Provisao", provisao)]:
+        if df_lanc.empty:
+            print(f"⚠️ DataFrame {df_nome} está vazio, nenhuma validação necessária")
+            continue
+
+        ausentes = []
+        for col in colunas_verificar:
+            df_lanc_col = df_lanc[col].astype(str).str.strip().str.upper()
+            consulta_col = consulta_beneficios[col].astype(str).str.strip().str.upper()
+
+            for idx, valor in df_lanc_col.items():
+                if valor not in consulta_col.values:
+                    data_lanc = df_lanc.loc[idx, "Data de pagamento"]
+                    ausentes.append(
+                        f'"{valor}" - {col} - Data = {datetime.strptime(data_lanc, "%Y-%m-%d").strftime("%d/%m/%Y")}')
+
+            if not any(v for v in ausentes if col in v) and col not in colunas_ok_geral:
+                colunas_ok_geral.append(col)
+
+        if ausentes:
+            print(f"⚠️ Colunas e valores ausentes no {df_nome}:")
+            for aviso in ausentes:
+                print(aviso)
+
+    if colunas_ok_geral:
+        print(f"✅ Colunas com todos os valores presentes: {', '.join(colunas_ok_geral)}")
+    # --- Fim da validação ---
 
     beneficios_contabilizado = ContabilizarBeneficios(deducao, emprestimos, provisao, consulta_beneficios, data_pagamento, data_competencia).contabilizar()
 

@@ -1,4 +1,4 @@
-rename_datas = {
+provisions_mapping = {
     'ALTERNA MIRANTE FICM': 'ALTERNATIVOS MIR FIM',
     'BB ACOES GL HEDGE IE': 'BB ACOES GLOBAIS FIA',
     'FIC DE FI AÇÕES IBRX': 'FIC DE FI ACOES IBRX',

@@ -4,9 +4,9 @@ import pandas as pd
 import os
 
 # filtro de data para rendimentos yyyy-mm-dd
-data = "2025-06-31"
+data = "2025-11-30"
 ano, mes, dia = data.split('-')
-file_name = 'Rendimentos_06.2025.xlsx'
+file_name = 'Rendimentos_11.2025.xlsx'
 
 documentos_path = os.path.join("Documents", "Rendimentos")
 
@@ -60,7 +60,7 @@ else:
 # inserindo campos
 df_rendimentos['CC'] = 9
 df_rendimentos['Patroc'] = '001'
-df_rendimentos['Historico do lancamento'] = 'ATUALIZACAO DO SALDO DEVEDOR'
+df_rendimentos['Historico do lancamento'] = 'APROP DE JUROS DO PROGRAMA DE EMPRESTIMO'
 df_rendimentos['Valor'] = df_rendimentos['Rendimento']
 
 # excluindo campos
