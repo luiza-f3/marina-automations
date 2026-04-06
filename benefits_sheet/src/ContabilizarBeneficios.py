@@ -77,6 +77,7 @@ class ContabilizarBeneficios:
         return df_lancamentos
 
     def contabilizarEmprestimos(self):
+        '''Contabiliza itens de empréstimos da folha de beneficios'''
         conta_debito = 20101990400000
 
         # Listas para armazenar os resultados de débitos e créditos

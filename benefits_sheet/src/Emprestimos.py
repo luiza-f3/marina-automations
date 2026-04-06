@@ -1,7 +1,6 @@
 import pandas as pd
 import datetime
 
-
 class Emprestimos:
     def __init__(self, df, competencia):
         self.folha_beneficios = df

@@ -4,3 +4,4 @@ venv
 pre_processing/data/raw
 pre_processing/data/processed
 __pycache__
+investiments/src/core/usecases/Documents

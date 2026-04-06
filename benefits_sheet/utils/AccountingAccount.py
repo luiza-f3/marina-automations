@@ -14,6 +14,7 @@ class AccountingAccount:
         self.conta_destino = "10203080101010"
 
     def duplicar_lancamentos_para_conta(self, df: pd.DataFrame) -> pd.DataFrame:
+        '''Duplica lançamentos de débito e crédito para contas específicas.'''
         novos_lancamentos = []
 
         for _, row in df.iterrows():

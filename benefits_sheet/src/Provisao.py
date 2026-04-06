@@ -30,6 +30,7 @@ class Provisao:
 
         # Filtra o DataFrame com base nos índices
         return self.folha_beneficios.loc[indices_validos]
+
         # return self.folha_beneficios[
         #     (
         #      (self.folha_beneficios["Item folha"] == '14121-IN1343-DEDUÇAOBASETRIBUTAVEL(INFORMATIVO)') |

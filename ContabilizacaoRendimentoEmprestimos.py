@@ -4,9 +4,9 @@ import pandas as pd
 import os
 
 # filtro de data para rendimentos yyyy-mm-dd
-data = "2025-11-30"
+data = "2025-12-31"
 ano, mes, dia = data.split('-')
-file_name = 'Rendimentos_11.2025.xlsx'
+file_name = 'Rendimentos_12.2025.xlsx'
 
 documentos_path = os.path.join("Documents", "Rendimentos")
 

@@ -166,4 +166,3 @@ def despesas_taxas_demonstrativo(df_despesas):
                     continue
     finalProtheus = pd.DataFrame(finalProtheus)
     return finalProtheus
-

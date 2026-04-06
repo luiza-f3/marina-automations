@@ -69,6 +69,8 @@ class Carteira:
         redemptions_applications_provisions_filter = provisions['Despesa'].str.contains(
             '|'.join(['RESGATE', 'APLICACAO']), case=False, regex=True)
 
+## Adicionar aqui a preparação caso não haja provisões de resgate/aplicação
+
         redemptions_applications_provisions = provisions[redemptions_applications_provisions_filter]
         if redemptions_applications_provisions is not None and not redemptions_applications_provisions.empty:
             redemptions_applications_provisions['Despesa'] = redemptions_applications_provisions.apply(

@@ -1,7 +1,6 @@
 import pandas as pd
 from unidecode import unidecode
 
-
 def limparTexto(df: pd.DataFrame(), colunas_list: list):
     """Ferramenta para limpar caracteres especiais, acentos e espaços"""
     for coluna in colunas_list:

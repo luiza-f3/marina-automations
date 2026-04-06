@@ -29,7 +29,7 @@ class FluxoDeCaixa:
         if not cash_flow.empty:
             cash_flow['Historico'] = cash_flow['Historico'].apply(normalize_text)
 
-            cash_flow = executeFromTo(cash_flow, 'Historico', expenses_mapping)
+            cash_flow = executeFromTo(cash_flow, 'Historico')
 
             cash_flow['Cod Fundo'] = cash_flow['Cod Fundo'].str.zfill(6)
 
