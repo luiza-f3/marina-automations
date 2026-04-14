@@ -42,7 +42,7 @@ class InvestimentosService:
         # gerar um relatorio
         gerarRelatorio(redemptions_applications_provisions, current_wallet)
 
-        # junta os valores de entrada presente no rodape dá carteira com o valor atual do respectivo fundo
+        # junta os valores de entrada presente no rodapé dá carteira com o valor atual do respectivo fundo
         current_wallet = pd.merge(current_wallet, redemptions_applications_provisions, left_on=['Fundo', 'Plano', 'Perfil'],
                                   right_on=['Despesa', 'Plano', 'Perfil'], how='left')
         current_wallet['Valor Atual'] = current_wallet['Valor Atual'].fillna(0) + current_wallet['Valor'].fillna(0)
