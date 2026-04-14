@@ -1,13 +1,13 @@
 import pandas as pd
 from unidecode import unidecode
 
-def limparTexto(df: pd.DataFrame(), colunas_list: list):
-    """Ferramenta para limpar caracteres especiais, acentos e espaços"""
+def normalize_text(df: pd.DataFrame(), colunas_list: list):
+    """ Limpa Caracteres especiais, acentos e espaços """
     for coluna in colunas_list:
         df[coluna] = df[coluna].apply(lambda x: unidecode(x).replace(' ', '') if isinstance(x, str) else x)
     return df
 
-def layoutLancamentoBeneficios(data, conta_contabil, valor, tipo_lancamento, descricao, cc, plano, perfil, patrocinadora):
+def build_benefits_posting_dataframe(data, conta_contabil, valor, tipo_lancamento, descricao, cc, plano, perfil, patrocinadora):
     """Retorna um DataFrame para o lançamento"""
     return pd.DataFrame({
         'Data': [data],
@@ -21,51 +21,54 @@ def layoutLancamentoBeneficios(data, conta_contabil, valor, tipo_lancamento, des
         'Patrocinadora': [patrocinadora]
     })
 
-def extrair_rubrica(texto):
+def extract_rubric_amount(text):
     """Usado exclusivamente para extrair o valor de 'folha' no preprocessamento da folha de pagamento"""
-    if not isinstance(texto, str):
+    if not isinstance(text, str):
         return None
 
-    primeira = texto.find('-')
-    if primeira == -1:
+    first_hyphen = text.find('-')
+    if first_hyphen == -1:
         return None
 
-    segunda = texto.find('-', primeira + 1)
-    if segunda == -1:
+    second_hyphen = text.find('-', first_hyphen + 1)
+    if second_hyphen == -1:
         return None
 
-    restante = texto[segunda + 1:].lstrip()
+    remaining_text = text[second_hyphen + 1:].lstrip()
 
-    espaco = restante.find(' ')
+    space_index = remaining_text.find(' ')
 
-    if espaco == -1:
-        return restante
-    return restante[:espaco]
+    if space_index == -1:
+        return remaining_text
+
+    return remaining_text[:space_index]
 
 
-def extrair_folha(texto):
-    if not isinstance(texto, str):
+def extract_payroll(text):
+    # Usado exclusivamente para extrair o valor de 'folha' no preprocessamento da folha de pagamento
+
+    if not isinstance(text, str):
         return None
 
-    pos_orc = texto.lower().find('orç')
+    after_budget_index = text.lower().find('orç')
 
-    if pos_orc != -1:
-        contador_hifen = 0
-        index_segundo_hifen = -1
+    if after_budget_index != -1:
+        hyphen_count = 0
+        second_hyphen_index = -1
 
-        for i in range(pos_orc - 1, -1, -1):
-            if texto[i] == '-':
-                contador_hifen += 1
-                if contador_hifen == 2:
-                    index_segundo_hifen = i
+        for i in range(after_budget_index - 1, -1, -1):
+            if text[i] == '-':
+                hyphen_count += 1
+                if hyphen_count == 2:
+                    second_hyphen_index = i
                     break
 
-        if index_segundo_hifen != -1:
-            trecho = texto[index_segundo_hifen + 1:pos_orc].strip()
-            return trecho.replace('-', '')
+        if second_hyphen_index != -1:
+            segment = text[second_hyphen_index + 1 : after_budget_index].strip()
+            return segment.replace('-', '')
 
-    ultimo_espaco = texto.rfind(' ')
-    if ultimo_espaco != -1:
-        return ' '.join(texto[ultimo_espaco + 1:].strip().split())
+    last_space_index = text.rfind(' ')
+    if last_space_index != -1:
+        return ' '.join(text[last_space_index + 1:].strip().split())
 
-    return texto.strip()
+    return text.strip()

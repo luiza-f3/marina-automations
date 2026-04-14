@@ -1,5 +1,3 @@
-from xml.dom.minidom import Document
-
 from dotenv import load_dotenv
 import os
 
@@ -30,3 +28,4 @@ ARRECADACAO_COLL=os.getenv("ARRECADACAO_COLL")
 
 RAW_DIR_PAGAMENTOS = os.path.join(BASE_PATH, "data", "raw")
 PROCESSED_DIR_PAGAMENTOS = os.path.join(BASE_PATH, "data", "processed")
+
