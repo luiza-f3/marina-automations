@@ -5,6 +5,8 @@ from Investiments.src.utils.mappings.cash_flow_info import cash_flow_info
 from Investiments.src.utils.data_loader import DataLoader
 from Investiments.src.utils.tools import define_profile_plan, map_fund_classifications
 
+from investiments.src.utils.tools import normalize_text
+
 load_dotenv()
 
 import pandas as pd
@@ -80,10 +82,10 @@ class Wallets:
         provisions = provisions[~redemption_application_filter].copy()
 
         if not movement_provisions.empty:
-            movement_provisions['Despesa'] = movement_provisions['Despesa'].apply(extract_value)
+            movement_provisions['Despesa'] = movement_provisions['Despesa'].apply(extr)
             movement_provisions['Despesa'] = movement_provisions['Despesa'].apply(normalize_text)
 
-        provisions['Despesa'] = provisions['Despesa'].apply(normalize_text)
+        provisions['Despesa'] = provisions['Despesa'].apply(normalize_text())
         provisions = replace_column_values(provisions, 'Despesa')
 
         return movement_provisions, provisions
