@@ -5,3 +5,4 @@ pre_processing/data/raw
 pre_processing/data/processed
 __pycache__
 Documents
+test_paths.py
