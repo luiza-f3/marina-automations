@@ -1,4 +1,4 @@
-from Investiments.src.utils.mappings.cash_flow_info import cash_flow_info
+from investiments.src.utils.mappings.cash_flow_info import cash_flow_info
 import pandas as pd
 import os
 
@@ -40,6 +40,9 @@ class DataLoader:
     def load_file_directory(directory, substrings):
         """Lista e carrega todos os arquivos do diretório que correspondem às substrings fornecidas usando
         DataLoader."""
+        print(f"[DEBUG] Tentando acessar diretório: {directory}")
+        print(f"[DEBUG] Verificando se diretório existe: {os.path.exists(directory)}")
+        
         files = DataLoader.list_files(directory, substrings)
         if files is not None:
             funds_data = {}

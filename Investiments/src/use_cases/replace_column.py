@@ -1,4 +1,4 @@
-from Investiments.src.utils.mappings.rename_data import fund_name_mapping
+from investiments.src.utils.mappings.rename_data import fund_name_mapping
 
 def replace_column_values(df, column):
     """

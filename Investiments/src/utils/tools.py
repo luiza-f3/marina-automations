@@ -5,7 +5,10 @@ import pandas as pd
 import re
 
 load_dotenv()
-query_path = os.getenv('CONSULTA_FUNDOS')
+base_path = os.path.expanduser(os.getenv("BASE_PATH"))
+consulta_fundos = os.getenv('CONSULTA_FUNDOS').replace('/', '\\')
+query_path = os.path.join(base_path, consulta_fundos)
+query_path = os.path.normpath(query_path)
 funds_df = pd.read_excel(query_path, sheet_name='para')
 
 

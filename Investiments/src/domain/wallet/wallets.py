@@ -1,20 +1,22 @@
 from dotenv import load_dotenv
 
-from Investiments.src.use_cases.replace_column import replace_column_values
-from Investiments.src.utils.mappings.cash_flow_info import cash_flow_info
-from Investiments.src.utils.data_loader import DataLoader
-from Investiments.src.utils.tools import define_profile_plan, map_fund_classifications
+from investiments.src.use_cases.replace_column import replace_column_values
+from investiments.src.utils.mappings.cash_flow_info import cash_flow_info
+from investiments.src.utils.data_loader import DataLoader
+from investiments.src.utils.tools import define_profile_plan, map_fund_classifications
 
 from investiments.src.utils.tools import normalize_text
 
 load_dotenv()
+import os
+base_path = os.path.expanduser(os.getenv("BASE_PATH"))
+consulta_fundos = os.getenv("CONSULTA_FUNDOS").replace('/', '\\')
 
 import pandas as pd
-import os
 
 class Wallets:
-    wallet_codes = [item[0] for item in cash_flow_info] #cod_carteira
-    fundQueryPath = os.path.expanduser(os.getenv("CONSULTA_FUNDOS")) #path_consulta_fundos
+    wallet_codes = [item[0] for item in cash_flow_info]
+    fundQueryPath = os.path.normpath(os.path.join(base_path, consulta_fundos)) #path_consulta_fundos
     funds_df = pd.read_excel(fundQueryPath, sheet_name='para') #df_fundos
 
     @classmethod
@@ -37,14 +39,14 @@ class Wallets:
 
         # Format fields
         combined_wallets['Cod Fundo'] = combined_wallets['Cod Fundo'].str.zfill(6)
-        combined_wallets = replace_column_values(combined_wallets, 'Fund Name')
+        combined_wallets = replace_column_values(combined_wallets, 'Fundo')
         combined_wallets = map_fund_classifications(combined_wallets, cls.funds_df)
 
         return combined_wallets
 
     @classmethod
     def prepare_provisions(cls, file_path):
-        wallets_data = DataLoader.load_file_directory(file_path, cls.cod_carteira)
+        wallets_data = DataLoader.load_file_directory(file_path, cls.wallet_codes)
 
         if not wallets_data:
             return pd.DataFrame(), pd.DataFrame()
@@ -82,10 +84,10 @@ class Wallets:
         provisions = provisions[~redemption_application_filter].copy()
 
         if not movement_provisions.empty:
-            movement_provisions['Despesa'] = movement_provisions['Despesa'].apply(extr)
+            movement_provisions['Despesa'] = movement_provisions['Despesa'].apply(normalize_text)
             movement_provisions['Despesa'] = movement_provisions['Despesa'].apply(normalize_text)
 
-        provisions['Despesa'] = provisions['Despesa'].apply(normalize_text())
+        provisions['Despesa'] = provisions['Despesa'].apply(normalize_text)
         provisions = replace_column_values(provisions, 'Despesa')
 
         return movement_provisions, provisions
