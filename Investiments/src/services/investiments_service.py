@@ -40,12 +40,19 @@ class InvestimentService:
 
         generate_report(redemptions_applications_provisions, current_wallet)
 
-        current_wallet = pd.merge(current_wallet, redemptions_applications_provisions, left_on=['Fundo', 'Plano', 'Perfil'],
-                                  right_on=['Despesa', 'Plano', 'Perfil'], how='left')
-        current_wallet['Valor Atual'] = current_wallet['Valor Atual'].fillna(0) + current_wallet['Valor'].fillna(0)
+        current_wallet = pd.merge(current_wallet, redemptions_applications_provisions, left_on=['Fundo', 'Plano', 'Perfil'], right_on=['Despesa', 'Plano', 'Perfil'], how='left')
 
-        previous_wallet = pd.merge(previous_wallet, redemptions_applications_provisions_pre, left_on=['Fundo', 'Plano', 'Perfil'], right_on=['Despesa', 'Plano', 'Perfil'], how='left')
-        previous_wallet['Valor Atual'] = previous_wallet['Valor Atual'].fillna(0) + previous_wallet['Valor'].fillna(0)
+        current_wallet['Valor Atual'] = (
+                pd.to_numeric(current_wallet['Valor Atual'], errors='coerce').fillna(0) +
+                pd.to_numeric(current_wallet['Valor'], errors='coerce').fillna(0)
+        )
+
+        previous_wallet = pd.merge( previous_wallet, redemptions_applications_provisions_pre, left_on=['Fundo', 'Plano', 'Perfil'], right_on=['Despesa', 'Plano', 'Perfil'], how='left')
+
+        previous_wallet['Valor Atual'] = (
+                pd.to_numeric(previous_wallet['Valor Atual'], errors='coerce').fillna(0) +
+                pd.to_numeric(previous_wallet['Valor'], errors='coerce').fillna(0)
+        )
 
         cash_flow = cashFlow.prepare_cash_flow(os.path.join(cls.base_path, 'Demonstrativos'), cls.dt_cash_flow)
 
@@ -60,13 +67,18 @@ class InvestimentService:
         else:
             print("[ERRO] Ocorreu um erro durante o processamento dos demonstrativos.")
 
+        # Totaliza o fluxo de caixa
         cash_flow = cashFlow.totalize_cash_flow(cash_flow)
+
+        # Gera a diferença entre entrada e saída antes de totalizar
         cash_flow_balance = cashFlow.generate_inflow_outflow_difference(cash_flow)
+        
+        # Filtra registros ANTES de totalizar
         acquisition_redemption, cash_flow, expenses = cashFlow.filter_records(cash_flow)
 
         assetEvolutuion = prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance)
 
-        income_accouting = prepare_accounting_entries(assetEvolutuion, cash_flow)
+        income_accouting = prepare_accounting_entries(assetEvolutuion, cash_flow_balance)
 
         cash_flow_tax_accounting = statement_fee_expenses(expenses)
 

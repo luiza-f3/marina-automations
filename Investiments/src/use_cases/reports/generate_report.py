@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import pandas as pd
 import os
 
 load_dotenv()
@@ -16,7 +17,7 @@ def generate_report(df_provision, wallet):
 
     reconciliation_report = wallet.groupby(['Plano', 'Perfil'])['Valor Atual'].sum().reset_index()
     reconciliation_report = reconciliation_report.merge(provision_copy, on=['Plano', 'Perfil'], how='left')
-    reconciliation_report['Valor'].fillna(0, inplace=True)
+    reconciliation_report['Valor'] = (pd.to_numeric(reconciliation_report['Valor'], errors='coerce').fillna(0))
     reconciliation_report['Total'] = reconciliation_report[['Valor Atual', 'Valor']].sum(axis=1)
 
     reconciliation_report['Dia'] = f'{day}/{mon}'

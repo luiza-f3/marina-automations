@@ -23,8 +23,10 @@ def provision_entries(df_provision):
                 booking1 = create_accounting_entry(fees_accounts[fee]['Despesa'], abs(amount), 'D', fee, plan, profile)
                 booking2 = create_accounting_entry(fees_accounts[fee][credit_account], abs(amount), 'C', fee, plan, profile)
 
-                accounting_entries.append(booking1)
-                accounting_entries.append(booking2)
+                if booking1:
+                    accounting_entries.append(booking1)
+                if booking2:
+                    accounting_entries.append(booking2)
 
                 break
 

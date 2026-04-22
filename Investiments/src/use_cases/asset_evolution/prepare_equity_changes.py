@@ -1,7 +1,6 @@
 import pandas as pd
 
 def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
-
     fund_list = []
     plan_list = []
     profile_list = []
@@ -78,4 +77,4 @@ def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
             'Rendimento': income_list
         })
 
-    return final_df
+        return final_df

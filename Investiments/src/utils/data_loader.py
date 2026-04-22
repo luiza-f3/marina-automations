@@ -16,7 +16,7 @@ class DataLoader:
                 df = pd.read_excel(file)
             else:
                 raise ValueError("Tipo de arquivo não suportado. Utilize um arquivo CSV ou XLSX.")
-            print(f"Dados carregados com sucesso do arquivo: {file}")
+           # print(f"Dados carregados com sucesso do arquivo: {file}")
             return df
         except Exception as e:
             print(f"Erro ao carregar o arquivo: {e}")
@@ -39,17 +39,18 @@ class DataLoader:
     @staticmethod
     def load_file_directory(directory, substrings):
         """Lista e carrega todos os arquivos do diretório que correspondem às substrings fornecidas usando
-        DataLoader."""
+        DataLoader. """
         print(f"[DEBUG] Tentando acessar diretório: {directory}")
         print(f"[DEBUG] Verificando se diretório existe: {os.path.exists(directory)}")
-        
+
+
         files = DataLoader.list_files(directory, substrings)
         if files is not None:
             funds_data = {}
             for file in files:
                 key_name = [substring for substring in substrings if substring in file]
                 file_path = os.path.join(directory, file)
-                print(f"Carregando arquivo: {file_path}")
+                #print(f"Carregando arquivo: {file_path}")
                 funds_data[key_name[0]] = DataLoader.load_data(file_path)
             return funds_data
         else:

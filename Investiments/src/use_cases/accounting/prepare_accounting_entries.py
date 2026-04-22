@@ -162,9 +162,21 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
 
     final_df = pd.DataFrame(protheus_entries)
 
+    # Renomeia coluna se necessário
+    if 'Historico de lancamento' in final_df.columns:
+         final_df = final_df.rename(columns={'Historico de lancamento': 'Historico'})
+     
+     # Remove colunas não necessárias
+    if 'Conta contabil' in final_df.columns:
+         final_df = final_df.rename(columns={'Conta contabil': 'Conta'})
+     
+    if 'D/C' in final_df.columns:
+         final_df = final_df.rename(columns={'D/C': 'Tipo'})
+     
     fixed_columns = ['Conta', 'Valor', 'Tipo', 'Historico', 'Plano', 'Perfil']
     for column in fixed_columns:
         if column not in final_df.columns:
             final_df[column] = None
 
+    print(f"Contabilização preparada com sucesso: {len(final_df)} lançamentos gerados")
     return final_df[fixed_columns]

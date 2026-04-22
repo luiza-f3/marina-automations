@@ -13,7 +13,6 @@ funds_df = pd.read_excel(query_path, sheet_name='para')
 
 
 ##### 1. CONFIGURATION AND SETUP FUNCTIONS
-
 def define_profile_plan(df, key, query_sheet):
     """
 Define plano e perfil com base em uma chave e planilha de consulta.
@@ -32,9 +31,11 @@ Returns:
     if index is not None:
         plan = query_sheet[index][2]
         profile = query_sheet[index][3]
-        df['Plano'] = plan
-        df['Perfil'] = profile
+
+        df.loc[:, 'Plano'] = plan
+        df.loc[:, 'Perfil'] = profile
         return df
+
     else:
         print(f"Key '{key}' not found in 'query_sheet'.")
         return None
@@ -43,18 +44,6 @@ Returns:
 ##### 2. DATA EXTRACTION FUNCTIONS
 
 def extract_value(text):
-    """
-Extrai o nome do fundo a partir de uma string formatada.
-
-Formato: "Fundo BRADESCO BD [010134]" → "BRADESCO BD"
-
-Args:
-    text (str): Texto de origem
-
-Returns:
-    str: Nome do fundo ou texto original se não encontrado
-    """
-
     if not isinstance(text, str):
         return text
     match = re.search(r'Fundo\s+(.*?)\s*\[', text)
@@ -62,23 +51,10 @@ Returns:
 
 
 def extract_fund_code(text):
-    """
-Extrai o código do fundo entre colchetes.
-
-Formato: "Fundo BRADESCO BD [010134]" → "010134"
-
-Args:
-    text (str): Texto de origem
-
-Returns:
-    str: Código do fundo ou None se não encontrado
-
-    """
-
     if not isinstance(text, str):
         return None
-    match = re.search(r'\[(\d+)\]', text)
-    return match.group(1) if match else None
+    match = re.search(r'\[(.*?)\]', text)
+    return match.group(1).strip() if match else None
 
 
 def filter_statement_by_date(df, target_date, default_fund_code='sem id'):
@@ -97,31 +73,39 @@ Raises:
     ValueError: Se a data não for encontrada
     """
 
-    df = df.loc[df['Historico'] != 'Saldo'].copy()
+    df = df[df['Historico'] != 'Saldo'].copy()
 
-    matching_indexes = df.index[df['Data'] == target_date]
-    if len(matching_indexes) == 0:
-        raise ValueError(f"Date '{target_date}' not found in DataFrame.")
+    if target_date not in df['Data'].values:
+        print(f"The date '{target_date}' was not found in the DataFrame.")
+        return pd.DataFrame()
 
-    start_index = matching_indexes[0]
+    start_index = df[df['Data'] == target_date].index[0]
     filtered_df = df.loc[start_index:].copy()
 
-    next_date_indexes = filtered_df.index[
+    next_date_indexes = filtered_df[
         filtered_df['Data'].notna() & (filtered_df['Data'] != target_date)
-        ]
+        ].index
 
     if len(next_date_indexes) > 0:
-        end_index = next_date_indexes[0]
-        result_df = filtered_df.loc[:end_index - 1].copy()
-    else:
-        result_df = filtered_df.copy()
+        result_df = filtered_df.loc[:next_date_indexes[0] - 1].copy()
 
-    result_df['Cod Fundo'] = result_df['Historico'].apply(
-        lambda x: extract_fund_code(x) if isinstance(x, str) and '[' in x else default_fund_code
+        result_df.loc[:, 'Cod Fundo'] = result_df['Historico'].apply(
+            lambda text: extract_fund_code(text)
+            if isinstance(text, str) and '[' in text
+            else default_fund_code
+        )
+
+        result_df.loc[:, 'Historico'] = result_df['Historico'].apply(extract_value)
+        return result_df
+
+    filtered_df.loc[:, 'Cod Fundo'] = filtered_df['Historico'].apply(
+        lambda text: extract_fund_code(text)
+        if isinstance(text, str) and '[' in text
+        else None
     )
-    result_df['Historico'] = result_df['Historico'].apply(extract_value)
 
-    return result_df
+    filtered_df.loc[:, 'Historico'] = filtered_df['Historico'].apply(extract_value)
+    return filtered_df
 
 
 ##### 3. MAPPING FUNCTIONS
@@ -234,48 +218,35 @@ Returns:
 
 
 def search_word(df, column, keyword):
-    """
-Busca linhas que contenham uma palavra-chave em uma coluna.
-
-Args:
-    df (DataFrame): DataFrame a filtrar
-    column (str): Nome da coluna
-    keyword (str): Palavra-chave
-
-Returns:
-    DataFrame: DataFrame filtrado e ordenado (por Plano e Perfil)
-
-    """
     filtro = df[column].str.contains(keyword, case=False, na=False)
     resultado = df[filtro].copy()
-    resultado['Conta contabil'] = resultado['Conta contabil'].astype(str)
+
+    if 'Conta contabil' in resultado.columns:
+        resultado['Conta contabil'] = (pd.to_numeric(resultado['Conta contabil'], errors='coerce').astype('Int64').astype(str))
+
+    if 'Conta' in resultado.columns:
+        resultado['Conta'] = (pd.to_numeric(resultado['Conta'], errors='coerce').astype('Int64').astype(str))
+
     resultado = sort_columns(resultado, 'Plano', 'Perfil')
     return resultado
 
 
 def filter_data(df, keywords_list):
-    """
-Filtra o DataFrame por palavras-chave na coluna 'Historico de lancamento'.
-
-Args:
-    df (DataFrame): DataFrame a filtrar
-    keywords_list (list ou str): Lista de palavras-chave (ou string única)
-
-Returns:
-    DataFrame: DataFrame filtrado e ordenado (por Plano e Perfil)
-
-    """
     if isinstance(keywords_list, str):
         keywords_list = [keywords_list]
 
-    filtro = df['Historico de lancamento'].str.contains(
-        '|'.join(keywords_list),
-        case=False,
-        regex=True,
-        na=False
-    )
+    history_column = 'Historico de lancamento' if 'Historico de lancamento' in df.columns else 'Historico'
+
+    filtro = df[history_column].str.contains('|'.join(keywords_list), case=False, regex=True, na=False)
+
     novo_df = df[filtro].copy()
-    novo_df['Conta contabil'] = novo_df['Conta contabil'].astype(str)
+
+    if 'Conta contabil' in novo_df.columns:
+        novo_df['Conta contabil'] = novo_df['Conta contabil'].astype(str)
+
+    if 'Conta' in novo_df.columns:
+        novo_df['Conta'] = novo_df['Conta'].astype(str)
+
     novo_df = sort_columns(novo_df, 'Plano', 'Perfil')
     return novo_df
 
@@ -323,23 +294,23 @@ def save_accounting_outputs(asset_evolution, income_accounting, cash_flow_tax_ac
         raise ValueError("base_path - não pode estar vazia.")
 
     try:
-        # 1. Filter specific data
-        application_df = search_word(income_accounting, 'Historico de lancamento', 'APLICACAO')
-        redemption_df = search_word(income_accounting, 'Historico de lancamento', 'RESGATE')
-        profitability_df = filter_data(income_accounting, ['RENDIMENTO'])
+        # 1. Filter specific data (mantendo lógica antiga)
+        application_df = search_word(income_accounting, 'Historico', 'APLICACAO')
+        redemption_df = search_word(income_accounting, 'Historico', 'RESGATE')
+        profitability_df = filter_data(income_accounting, 'RENDIMENTO')
 
         # 2. Create output directory
         investments_path = os.path.join(base_path, 'investimentos')
         os.makedirs(investments_path, exist_ok=True)
 
-        # 3. Format dates for filenames
+        # 3. Format dates (mantendo padrão antigo)
         file_date = f'{day}-{month}'
         sheet_date = f'{day}_{month}'
 
-        # 4. Define file paths
-        asset_evolution_file = os.path.join(investments_path, f'evolucao_patrimonial_{file_date}.xlsx')
-        protheus_file = os.path.join(investments_path, f'lancamentos_protheus_{file_date}.csv')
-        segregated_file = os.path.join(investments_path, f'lancamentos_segregados_{file_date}.xlsx')
+        # 4. Define file paths (REMOVIDO "_" para manter padrão antigo)
+        asset_evolution_file = os.path.join(investments_path, f'evolucao_patrimonial{file_date}.xlsx')
+        protheus_file = os.path.join(investments_path, f'lancamentos_protheus{file_date}.csv')
+        segregated_file = os.path.join(investments_path, f'lancamentos_segregados{file_date}.xlsx')
 
         # 5. Save asset evolution
         asset_evolution.to_excel(asset_evolution_file, index=False)
@@ -351,13 +322,19 @@ def save_accounting_outputs(asset_evolution, income_accounting, cash_flow_tax_ac
         )
         protheus_df.to_csv(protheus_file, index=False, header=False, sep=';')
 
-        # 7. Save segregated file (5 sheets)
+        # 7. Save segregated file (mantendo nomes antigos das abas)
         with pd.ExcelWriter(segregated_file) as writer:
-            provisions_accounting.to_excel(writer, sheet_name=f'Provisoes_{sheet_date}', index=False)
-            cash_flow_tax_accounting.to_excel(writer, sheet_name=f'Despesas_{sheet_date}', index=False)
+            provisions_accounting.to_excel(writer, sheet_name=f'Provisoes{sheet_date}', index=False)
+            cash_flow_tax_accounting.to_excel(writer, sheet_name=f'Despesas{sheet_date}', index=False)
             profitability_df.to_excel(writer, sheet_name=f'Rentabilidade_{sheet_date}', index=False)
             application_df.to_excel(writer, sheet_name=f'Aplicacao_{sheet_date}', index=False)
             redemption_df.to_excel(writer, sheet_name=f'Resgate_{sheet_date}', index=False)
+
+        print("\n=== ARQUIVOS SALVOS COM SUCESSO ===")
+        print(f"Evolução Patrimonial: {asset_evolution_file}")
+        print(f"Lançamentos Protheus: {protheus_file}")
+        print(f"Lançamentos Segregados: {segregated_file}")
+        print("====================================\n")
 
         return {
             'asset_evolution': asset_evolution_file,
@@ -372,7 +349,7 @@ def save_accounting_outputs(asset_evolution, income_accounting, cash_flow_tax_ac
         ) from error
     except FileNotFoundError as error:
         raise FileNotFoundError(
-             f"Caminho de saída não encontrado: '{base_path}'."
+            f"Caminho de saída não encontrado: '{base_path}'."
         ) from error
     except OSError as error:
         raise OSError(

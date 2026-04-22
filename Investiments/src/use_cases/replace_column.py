@@ -1,6 +1,6 @@
 from investiments.src.utils.mappings.rename_data import fund_name_mapping
 
-def replace_column_values(df, column):
+def replace_column_values(df, column, mapping):
     """
     Aplica mapeamento de valores em uma coluna do DataFrame.
 
