@@ -298,7 +298,9 @@ def save_accounting_outputs(asset_evolution, income_accounting, cash_flow_tax_ac
         history_col = 'Historico de lancamento' if 'Historico de lancamento' in income_accounting.columns else 'Historico'
         application_df = search_word(income_accounting, history_col, 'APLICACAO')
         redemption_df = search_word(income_accounting, history_col, 'RESGATE')
-        profitability_df = income_accounting.copy()
+        # Filtra apenas rendimentos para a aba de rentabilidade
+        mask_rentabilidade = ~income_accounting[history_col].str.contains('APLICACAO|RESGATE', case=False, na=False)
+        profitability_df = income_accounting[mask_rentabilidade].copy()
 
         # 2. Create output directory
         investments_path = os.path.join(base_path, 'investimentos')
