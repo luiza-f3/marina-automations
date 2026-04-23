@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 base_path = os.path.expanduser(os.getenv("BASE_PATH"))
-consulta_fundos = os.getenv("CONSULTA_FUNDOS").replace('/', '\\')
+consulta_fundos = os.getenv("CONSULTA_FUNDOS")
 funds_file_path = os.path.normpath(os.path.join(base_path, consulta_fundos))
 funds_df = pd.read_excel(funds_file_path, sheet_name='para')
 

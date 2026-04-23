@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 base_path = os.path.expanduser(os.getenv("BASE_PATH"))
-consulta_fundos = os.getenv("CONSULTA_FUNDOS").replace('/', '\\')
+consulta_fundos = os.getenv("CONSULTA_FUNDOS")
 path_file = os.path.normpath(os.path.join(base_path, consulta_fundos))
 funds_df = pd.read_excel(path_file, sheet_name='para')
 
@@ -162,21 +162,5 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
 
     final_df = pd.DataFrame(protheus_entries)
 
-    # Renomeia coluna se necessário
-    if 'Historico de lancamento' in final_df.columns:
-         final_df = final_df.rename(columns={'Historico de lancamento': 'Historico'})
-     
-     # Remove colunas não necessárias
-    if 'Conta contabil' in final_df.columns:
-         final_df = final_df.rename(columns={'Conta contabil': 'Conta'})
-     
-    if 'D/C' in final_df.columns:
-         final_df = final_df.rename(columns={'D/C': 'Tipo'})
-     
-    fixed_columns = ['Conta', 'Valor', 'Tipo', 'Historico', 'Plano', 'Perfil']
-    for column in fixed_columns:
-        if column not in final_df.columns:
-            final_df[column] = None
-
     print(f"Contabilização preparada com sucesso: {len(final_df)} lançamentos gerados")
-    return final_df[fixed_columns]
+    return final_df

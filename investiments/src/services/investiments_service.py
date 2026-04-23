@@ -70,15 +70,15 @@ class InvestimentService:
         # Totaliza o fluxo de caixa
         cash_flow = cashFlow.totalize_cash_flow(cash_flow)
 
-        # Gera a diferença entre entrada e saída antes de totalizar
-        cash_flow_balance = cashFlow.generate_inflow_outflow_difference(cash_flow)
-        
-        # Filtra registros ANTES de totalizar
+        # Filtra registros (separa RESGATE/AQUISICAO DE COTAS e despesas)
         acquisition_redemption, cash_flow, expenses = cashFlow.filter_records(cash_flow)
+
+        # Gera a diferença entre entrada e saída para evolução patrimonial (após filtro)
+        cash_flow_balance = cashFlow.generate_inflow_outflow_difference(cash_flow)
 
         assetEvolutuion = prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance)
 
-        income_accouting = prepare_accounting_entries(assetEvolutuion, cash_flow_balance)
+        income_accouting = prepare_accounting_entries(assetEvolutuion, cash_flow)
 
         cash_flow_tax_accounting = statement_fee_expenses(expenses)
 

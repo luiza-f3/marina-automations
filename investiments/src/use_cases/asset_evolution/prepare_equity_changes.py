@@ -47,11 +47,7 @@ def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
             inflow = 0
             outflow = 0
 
-        if inflow != 0 or outflow != 0:
-            inflow *= -1
-            outflow *= -1
-
-        income = current_value - previous_balance - inflow - outflow
+        income = current_value - previous_balance + inflow + outflow
 
         fund_list.append(fund)
         plan_list.append(plan)
@@ -59,22 +55,22 @@ def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
         classification_list.append(classification)
         current_value_list.append(current_value)
         previous_balance_list.append(previous_balance)
-        inflow_list.append(inflow)
-        outflow_list.append(outflow)
+        inflow_list.append(-outflow)
+        outflow_list.append(-inflow)
         income_list.append(income)
         fund_code_list.append(fund_code)
 
-        final_df = pd.DataFrame({
-            'Fundo': fund_list,
-            'Cod Fundo': fund_code_list,
-            'Plano': plan_list,
-            'Perfil': profile_list,
-            'Classificacao': classification_list,
-            'Saldo Anterior': previous_balance_list,
-            'Entrada': inflow_list,
-            'Saida': outflow_list,
-            'Valor Atual': current_value_list,
-            'Rendimento': income_list
-        })
+    final_df = pd.DataFrame({
+        'Fundo': fund_list,
+        'Cod Fundo': fund_code_list,
+        'Plano': plan_list,
+        'Perfil': profile_list,
+        'Classificacao': classification_list,
+        'Saldo Anterior': previous_balance_list,
+        'Entrada': inflow_list,
+        'Saida': outflow_list,
+        'Saldo Atual': current_value_list,
+        'Rendimento': income_list
+    })
 
-        return final_df
+    return final_df

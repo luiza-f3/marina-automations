@@ -10,7 +10,7 @@ execute_provision = os.getenv('PROVISION')
 
 def generate_report(df_provision, wallet):
     """Gerar relatórios"""
-    investiments_path = os.path.join(base_path, 'Investimentos')
+    investiments_path = os.path.join(base_path, 'investimentos')
     os.makedirs(investiments_path, exist_ok=True)
 
     provision_copy = df_provision.groupby(['Plano', 'Perfil'])['Valor'].sum().reset_index()

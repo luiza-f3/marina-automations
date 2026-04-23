@@ -3,7 +3,7 @@ import os
 
 load_dotenv()
 
-BASE_PATH = os.path.expanduser('~\\Documents')
+BASE_PATH = os.path.expanduser(os.path.join('~', 'Documents'))
 RAW_DIR = os.path.join(BASE_PATH, "data", "raw")
 PROCESSED_DIR = os.path.join(BASE_PATH, "data", "processed")
 

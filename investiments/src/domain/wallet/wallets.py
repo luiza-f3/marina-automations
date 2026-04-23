@@ -10,7 +10,7 @@ import pandas as pd
 load_dotenv()
 
 base_path = os.path.expanduser(os.getenv("BASE_PATH"))
-consulta_fundos = os.getenv("CONSULTA_FUNDOS").replace('/', '\\')
+consulta_fundos = os.getenv("CONSULTA_FUNDOS")
 
 
 class Wallets:

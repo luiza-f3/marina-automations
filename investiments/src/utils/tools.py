@@ -6,7 +6,7 @@ import re
 
 load_dotenv()
 base_path = os.path.expanduser(os.getenv("BASE_PATH"))
-consulta_fundos = os.getenv('CONSULTA_FUNDOS').replace('/', '\\')
+consulta_fundos = os.getenv('CONSULTA_FUNDOS')
 query_path = os.path.join(base_path, consulta_fundos)
 query_path = os.path.normpath(query_path)
 funds_df = pd.read_excel(query_path, sheet_name='para')
@@ -295,9 +295,10 @@ def save_accounting_outputs(asset_evolution, income_accounting, cash_flow_tax_ac
 
     try:
         # 1. Filter specific data (mantendo lógica antiga)
-        application_df = search_word(income_accounting, 'Historico', 'APLICACAO')
-        redemption_df = search_word(income_accounting, 'Historico', 'RESGATE')
-        profitability_df = filter_data(income_accounting, 'RENDIMENTO')
+        history_col = 'Historico de lancamento' if 'Historico de lancamento' in income_accounting.columns else 'Historico'
+        application_df = search_word(income_accounting, history_col, 'APLICACAO')
+        redemption_df = search_word(income_accounting, history_col, 'RESGATE')
+        profitability_df = income_accounting.copy()
 
         # 2. Create output directory
         investments_path = os.path.join(base_path, 'investimentos')

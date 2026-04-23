@@ -21,7 +21,7 @@ for dir_name in expected_dirs:
 print()
 
 # Teste de arquivo de consulta
-consulta_fundos = os.getenv('CONSULTA_FUNDOS').replace('/', '\\')
+consulta_fundos = os.getenv('CONSULTA_FUNDOS')
 full_consulta_path = os.path.normpath(os.path.join(base_path, consulta_fundos))
 exists = os.path.exists(full_consulta_path)
 print(f"Arquivo de Consulta: {full_consulta_path}")
