@@ -6,16 +6,15 @@ class LoanInterestPosting:
     # Função para gerar o arquivo de lançamentos contábeis de rendimentos de empréstimos
 
     #Filtro de data para rendimentos yyyy-mm-dd
-    date = "2025-11-30"
+    date = "2026-01-01"
     year, month, day = date.split('-')
-    file_name = f'Rendimentos_11.2025.xlsx'
+    file_name = f'Rendimentos_01.2026.xlsx'
 
-    documents_path = os.path.join("Documents", "Rendimentos")
-
-    # Definindo o caminho para os rendimentos de empréstimos
-    file_path = os.path.join('~','Documents', file_name)
-    path_loan_interest = os.path.expanduser(file_path)
-    base_path = os.path.expanduser(documents_path)
+    # Definindo o caminho absoluto do diretório do projeto
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(project_root, 'Documents', 'Consultas', file_name)
+    path_loan_interest = file_path
+    base_path = os.path.join(project_root, 'Documents', 'Rendimentos')
     path_save = os.path.join(base_path, f"rendimentoEmprestimos_protheus{day}-{month}.csv")
 
     # Contas contábeis, os valores sempre serão positivos, portanto a ordem é sempre débito e crédito
@@ -44,6 +43,10 @@ class LoanInterestPosting:
         "VISÃO TELEFÔNICA": {"AGRESSIVO": 31, "AGRESSIVO RF LP": 30, "CONSERVADOR": 28, "MODERADO": 29, "SUPER CONSER": 27}
     }]
 
+    # Checagem se o arquivo existe antes de ler
+    if not os.path.exists(path_loan_interest):
+        print(f"❌ Arquivo de rendimentos não encontrado: {path_loan_interest}")
+        sys.exit()
     df_income = pd.read_excel(path_loan_interest)
 
     # Tratamento de tipos
@@ -61,14 +64,14 @@ class LoanInterestPosting:
     # Inserindo campos
     df_income['CC'] = 9
     df_income['Patroc'] = '001'
-    df_income['Hist. Lancamento'] = 'APROP DE JUROS DO PROGRAMA DE EMPRESTIMO'
+    df_income['Historico do lancamento'] = 'APROP DE JUROS DO PROGRAMA DE EMPRESTIMO'
     df_income['Valor'] = df_income['Rendimento']
 
     # Excluindo campos
-    df_income.drop(["Rendimento", 'Data'], axis=1, inplace=True)
+    df_income.drop(["Rendimento", 'Data'], inplace=True, axis=1)
 
     # De-Para de perfil
-    for _, row in df_income.iterrows():
+    for row_index, row in df_income.iterrows():
         for dict_plan in plan_profile:
             if row['Plano'] in dict_plan:
                 df_income.at[row_index, 'Perfil'] = dict_plan[row['Plano']][row['Perfil']]
@@ -76,7 +79,7 @@ class LoanInterestPosting:
 
     # De-Para de plano
     for index, row in df_income.iterrows():
-        df_income.at[index, 'Plano'] = plan(row['Plano'])
+        df_income.at[index, 'Plano'] = plan[row['Plano']]
 
     for index, row in df_income.iterrows():
         if row['Valor'] >= 0:
@@ -134,4 +137,4 @@ class LoanInterestPosting:
         os.makedirs(base_path, exist_ok=True)
         result_df.to_csv(path_save, header=False, index=False, sep=';')
 
-        print('✅ Arquivo gerado com sucesso!')  
+    print(f'✅ Arquivo gerado com sucesso! \nCaminho: {path_save}')
