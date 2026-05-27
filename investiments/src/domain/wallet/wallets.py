@@ -24,7 +24,7 @@ class Wallets:
     # Carrega o DataFrame de fundos a partir do arquivo Excel, aba 'para', para uso em mapeamento de fundos
     funds_df = pd.read_excel(fundQueryPath, sheet_name='para')
 
-# prepare_wallets(): Consolida posições de fundos com plano, perfil e classificação, padronizando nomes e códigos para garantir consistência no cálculo de rendimento.
+    # prepare_wallets(): Consolida posições de fundos com plano, perfil e classificação, padronizando nomes e códigos para garantir consistência no cálculo de rendimento.
     @classmethod
     def prepare_wallets(cls, path_file):
 
@@ -70,7 +70,7 @@ class Wallets:
 
         return combined_wallets
 
-#prepare_provisions(): Extrai movimentações pendentes e provisões das carteiras do rodapé das carteiras, classificando-as em movimentações (resgates/aplicações) e provisões (despesas/taxas) para ajuste de saldo e geração de relatórios.
+    #prepare_provisions(): Extrai movimentações pendentes e provisões das carteiras do rodapé das carteiras, classificando-as em movimentações (resgates/aplicações) e provisões (despesas/taxas) para ajuste de saldo e geração de relatórios.
     @classmethod
     def prepare_provisions(cls, file_path):
         
