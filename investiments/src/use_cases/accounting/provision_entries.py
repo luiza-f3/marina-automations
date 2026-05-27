@@ -16,10 +16,10 @@ def provision_entries(df_provision):
 
         for fee in fees_info:
             if fee in expense:
-                # Determine credit account based on plan and profile
+                # Determina a conta de crédito com base no plano e perfil
                 credit_account = 'PGA' if (plan, profile) in [(987, 19), (952, 20)] else 'Plano'
 
-                # Create debit and credit accounting_entries
+                # Cria os lançamentos contábeis: debita a conta de despesa e credita a conta de provisão correspondente
                 booking1 = create_accounting_entry(fees_accounts[fee]['Despesa'], abs(amount), 'D', fee, plan, profile)
                 booking2 = create_accounting_entry(fees_accounts[fee][credit_account], abs(amount), 'C', fee, plan, profile)
 

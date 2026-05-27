@@ -1,5 +1,6 @@
 import pandas as pd
 
+# Calcula a evolução patrimonial de cada fundo, gerando relatório de rendimentos, Compara carteira atual, carteira anterior e fluxo de caixa para gerar saldos, movimentações e rendimento do período.
 def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
     fund_list = []
     plan_list = []
@@ -12,6 +13,7 @@ def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
     income_list = []
     fund_code_list = []
 
+    # PROCESSAMENTO DOS FUNDOS DA CARTEIRA ATUAL (Itera sobre cada fundo da carteira atual, buscando saldo anterior e movimentações para calcular rendimento.)
     for _, row in current_wallet.iterrows():
         fund = row['Fundo']
         plan = row['Plano']
@@ -20,6 +22,7 @@ def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
         classification = row['Classificacao']
         fund_code = row['Cod Fundo']
 
+        # BUSCA DO SALDO ANTERIOR (Localiza o mesmo fundo na carteira anterior por código, plano e perfil.)
         previous_balance_row = previous_wallet[
             (previous_wallet['Cod Fundo'] == fund_code) &
             (previous_wallet['Plano'] == plan) &
@@ -31,6 +34,7 @@ def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
         else:
             previous_balance = 0
 
+        # BUSCA DO FLUXO DE CAIXA (Localiza movimentações do mesmo fundo por código, plano e perfil.)
         if not cash_flow_balance.empty:
             cash_flow_row = cash_flow_balance[
                 (cash_flow_balance['Cod Fundo'] == fund_code) &
@@ -47,8 +51,10 @@ def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
             inflow = 0
             outflow = 0
 
+        # CÁLCULO DO RENDIMENTO (Calcula rendimento considerando saldo anterior, movimentações e saldo atual.)
         income = current_value - previous_balance + inflow + outflow
 
+        # ACUMULAÇÃO DOS DADOS (Adiciona os dados processados às listas para montagem do DataFrame final.)
         fund_list.append(fund)
         plan_list.append(plan)
         profile_list.append(profile)
@@ -60,6 +66,7 @@ def prepare_equity_changes(current_wallet, previous_wallet, cash_flow_balance):
         income_list.append(income)
         fund_code_list.append(fund_code)
 
+    # MONTAGEM DO DATAFRAME FINAL (Cria um DataFrame consolidado com os dados processados para geração de relatórios e análises.)
     final_df = pd.DataFrame({
         'Fundo': fund_list,
         'Cod Fundo': fund_code_list,

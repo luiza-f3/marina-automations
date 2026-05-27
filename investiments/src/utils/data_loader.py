@@ -37,12 +37,11 @@ class DataLoader:
             return None
 
     @staticmethod
-    def load_file_directory(directory, substrings):
+    def load_file_directory(directory, substrings, include_filename=False):
         """Lista e carrega todos os arquivos do diretório que correspondem às substrings fornecidas usando
         DataLoader. """
         print(f"[DEBUG] Tentando acessar diretório: {directory}")
         print(f"[DEBUG] Verificando se diretório existe: {os.path.exists(directory)}")
-
 
         files = DataLoader.list_files(directory, substrings)
         if files is not None:
@@ -51,7 +50,10 @@ class DataLoader:
                 key_name = [substring for substring in substrings if substring in file]
                 file_path = os.path.join(directory, file)
                 #print(f"Carregando arquivo: {file_path}")
-                funds_data[key_name[0]] = DataLoader.load_data(file_path)
+                if include_filename:
+                    funds_data[key_name[0]] = (DataLoader.load_data(file_path), file)
+                else:
+                    funds_data[key_name[0]] = DataLoader.load_data(file_path)
             return funds_data
         else:
             return None

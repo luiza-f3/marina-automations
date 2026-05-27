@@ -16,7 +16,7 @@ funds_df['Perfil'] = funds_df['Perfil'].astype(int)
 def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFrame) -> pd.DataFrame:
     protheus_entries = []
 
-    # --- Process income entries ---
+    # Processamento dos rendimentos
     for _, row in income_df.iterrows():
         plan = int(row['Plano'])
         profile = int(row['Perfil'])
@@ -34,6 +34,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
         negative_profit_account = fund_match['Rentabilidade Negativa'].values[0]
         updated_cost_account = fund_match['Custo Atualizado'].values[0]
 
+        # Lançamento de rendimento: se o rendimento for negativo, debita a conta de prejuízo e credita a conta de custo atualizado; se for positivo, debita a conta de custo atualizado e credita a conta de lucro.
         if income_amount < 0:
             protheus_entries.append(
                 create_accounting_entry(
@@ -78,7 +79,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                 )
             )
 
-    # --- Process statement entries ---
+    # Processamento das movimentações de cotas (entradas e saídas)
     if not statements_df.empty:
         for _, row in statements_df.iterrows():
             fund_name = row['Historico']
@@ -114,6 +115,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                 application_account = fund_match['Aplicacao'].values[0]
                 redemption_account = fund_match['Resgate'].values[0]
 
+            # Geração dos lançamentos contábeis para entradas, garantindo que os valores sejam arredondados e positivos para o Protheus.
             if entry_amount:
                 entry_amount = round(entry_amount, 2)
                 protheus_entries.append(
@@ -125,7 +127,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                         plan,
                         profile
                     )
-                )
+                ) # Para refletir a visão do plano, a entrada no fundo é uma saída para o plano, e vice-versa.
                 protheus_entries.append(
                     create_accounting_entry(
                         application_account,
@@ -137,6 +139,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                     )
                 )
 
+            # Para saídas, o processo é inverso: o plano recebe a entrada (débito na conta de resgate) e o fundo tem a saída (crédito na conta de carteira).
             if exit_amount:
                 exit_amount = round(exit_amount, 2)
                 protheus_entries.append(
