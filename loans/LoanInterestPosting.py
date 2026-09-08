@@ -6,9 +6,9 @@ class LoanInterestPosting:
     # Função para gerar o arquivo de lançamentos contábeis de rendimentos de empréstimos
 
     #Filtro de data para rendimentos yyyy-mm-dd
-    date = "2026-01-01"
+    date = "2026-06-30"
     year, month, day = date.split('-')
-    file_name = f'Rendimentos_01.2026.xlsx'
+    file_name = f'Rendimentos_06.2026.xlsx'
 
     # Definindo o caminho absoluto do diretório do projeto
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -63,8 +63,7 @@ class LoanInterestPosting:
 
     # Inserindo campos
     df_income['CC'] = 9
-    df_income['Patroc'] = '001'
-    df_income['Historico do lancamento'] = 'APROP DE JUROS DO PROGRAMA DE EMPRESTIMO'
+    df_income['Historico do lancamento'] = 'APROPRIACAO DE JUROS DO PROGRAMA DE EMPRESTIMO'
     df_income['Valor'] = df_income['Rendimento']
 
     # Excluindo campos
@@ -132,7 +131,7 @@ class LoanInterestPosting:
 
                 result_df = pd.concat([[result_df], pd.DataFrame(new_entries)], ignore_index=True)
 
-        result_df = result_df[['Conta contabil', 'Valor', 'D/C', 'Historico do lancamento', 'CC', 'Plano', 'Perfil', 'Patroc']]
+        result_df = result_df[['Conta contabil', 'Valor', 'D/C', 'Historico do lancamento', 'CC', 'Plano', 'Perfil']]
 
         os.makedirs(base_path, exist_ok=True)
         result_df.to_csv(path_save, header=False, index=False, sep=';')

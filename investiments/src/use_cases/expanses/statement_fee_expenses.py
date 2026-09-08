@@ -11,7 +11,7 @@ funds_file_path = os.path.normpath(os.path.join(base_path, consulta_fundos))
 df_funds = pd.read_excel(funds_file_path, sheet_name='para')
 
 # Constantes
-standard_fees = ('DESPESA - CUSTO CETIP', 'TAXA CETIP')
+# standard_fees = ('CUSTO CETIP', 'TAXA CETIP')
 special_plans = {(987, 19), (952, 20)}
 iof_account = 50298999900000
 
@@ -21,6 +21,7 @@ def statement_fee_expenses(df_despesas):
     accounting_entries = []
 
     for _, row in df_despesas.iterrows():
+
         fund = row['Historico']
         plan = row['Plano']
         profile = row['Perfil']
@@ -29,8 +30,8 @@ def statement_fee_expenses(df_despesas):
 
         # Busca conta da carteira
         current_wallet = df_funds.loc[
-            (df_funds['Plano'] == plan) &
-            (df_funds['Perfil'] == profile)
+            (df_funds['Plano'] == plan)
+            & (df_funds['Perfil'] == profile)
             ]['Investimentos'].values[0]
 
         # Define tipo de conta (PGA ou Plano)
@@ -48,53 +49,77 @@ def statement_fee_expenses(df_despesas):
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
 
         # ========== ESTORNO DE TAXA CETIP ==========
-        elif fund in ['ESTORNO DE TAXA CETIP', 'ESTORNO TAXA CETIP']:
-            accounting_entries.append(create_accounting_entry(fees_accounts['ESTORNO DE TAXA CETIP']['PGA'], value, 'D',
-                                                         'ESTORNO DE TAXA CETIP', plan, profile))
+        elif fund == 'TAXA CETIP (ESTORNO)':
             accounting_entries.append(
-                create_accounting_entry(current_wallet, value, 'C', 'ESTORNO DE TAXA CETIP', plan, profile))
+                create_accounting_entry(fees_accounts['TAXA CETIP (ESTORNO)']['PGA'], value, 'D', fund, plan, profile))
+            accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
 
-        # ========== TAXAS PADRÃO (CETIP) ==========
-        elif fund in standard_fees:
+        # ========== CUSTO CETIP ==========
+        elif fund == 'CUSTO CETIP':
             if inflow != 0:
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
-                accounting_entries.append(create_accounting_entry(fees_accounts['Taxa CETIP'][tipo_conta], value, 'C', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['CUSTO CETIP'][tipo_conta], value, 'C', fund, plan, profile))
             elif outflow != 0:
-                accounting_entries.append(create_accounting_entry(fees_accounts['Taxa CETIP'][tipo_conta], value, 'D', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['CUSTO CETIP'][tipo_conta], value, 'D', fund, plan, profile))
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
 
         # ========== TAXA DE CONTROLADORIA ==========
         elif fund == 'TAXA DE CONTROLADORIA':
             if inflow != 0:
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
-                accounting_entries.append(create_accounting_entry(fees_accounts['TAXA DE CONTROLADORIA'][tipo_conta], value, 'C', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA DE CONTROLADORIA'][tipo_conta], value, 'C', fund, plan,
+                                            profile))
             elif outflow != 0:
-                accounting_entries.append(create_accounting_entry(fees_accounts['TAXA DE CONTROLADORIA'][tipo_conta], value, 'D', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA DE CONTROLADORIA'][tipo_conta], value, 'D', fund, plan,
+                                            profile))
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
 
-        # ========== TAXA DE CUSTÓDIA ==========
+        # ========== TAXA DE CUSTODIA ==========
         elif fund == 'TAXA DE CUSTODIA':
             if inflow != 0:
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
-                accounting_entries.append(create_accounting_entry(fees_accounts['TAXA DE CUSTODIA'][tipo_conta], value, 'C', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA DE CUSTODIA'][tipo_conta], value, 'C', fund, plan,
+                                            profile))
             elif outflow != 0:
-                accounting_entries.append(create_accounting_entry(fees_accounts['TAXA DE CUSTODIA'][tipo_conta], value, 'D', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA DE CUSTODIA'][tipo_conta], value, 'D', fund, plan,
+                                            profile))
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
 
-        # ========== AJUSTES DE TAXA CETIP E SELIC ==========
-        elif fund in ['(AJUSTE) TAXA CETIP', 'AJUSTE DE TAXA SELIC']:
+        # ========== AJUSTE DE TAXA CETIP ==========
+        elif fund == 'TAXA CETIP (AJUSTE)':
             if inflow != 0:
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
                 accounting_entries.append(
-                    create_accounting_entry(fees_accounts['Taxa CETIP']['Despesa'], value, 'C', fund, plan, profile))
+                    create_accounting_entry(fees_accounts['TAXA CETIP (AJUSTE)']['Despesa'], value, 'C', fund, plan,
+                                            profile))
             elif outflow != 0:
                 accounting_entries.append(
-                    create_accounting_entry(fees_accounts['Taxa CETIP']['Despesa'], value, 'D', fund, plan, profile))
+                    create_accounting_entry(fees_accounts['TAXA CETIP (AJUSTE)']['Despesa'], value, 'D', fund, plan,
+                                            profile))
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
 
-        # ========== TARIFAS DE LIQUIDAÇÃO ==========
-        elif fund in ['DESPESA B 10 - TARIFA DE LIQUIDACAO FINANCEIRA', '(AJUSTE) TARIFA DE LIQUIDACAO FINANCEIRA']:
-            chave_tipo = 'Despesa' if '(AJUSTE)' in fund else tipo_conta
+        # ========== TAXA SELIC (AJUSTE) ==========
+        elif fund == 'TAXA SELIC (AJUSTE)':
+            if inflow != 0:
+                accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA CETIP (AJUSTE)']['Despesa'], value, 'C', fund, plan,
+                                            profile))
+            elif outflow != 0:
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA CETIP (AJUSTE)']['Despesa'], value, 'D', fund, plan,
+                                            profile))
+                accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
+
+        # ========== TARIFAS DE LIQUIDACAO FINANCEIRA ==========
+        elif fund in ['TARIFA DE LIQUIDACAO FINANCEIRA (AJUSTE)', 'TARIFA DE LIQUIDACAO FINANCEIRA (DESPESA B 10)']:
+            chave_tipo = 'Despesa' if fund == 'TARIFA DE LIQUIDACAO FINANCEIRA (AJUSTE)' else tipo_conta
 
             if inflow != 0:
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
@@ -105,15 +130,17 @@ def statement_fee_expenses(df_despesas):
                     create_accounting_entry(fees_accounts[fund][chave_tipo], value, 'D', fund, plan, profile))
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
 
-        # ========== TAXA DE ADMINISTRAÇÃO ==========
-        elif fund == 'TAXA ADMINISTRACAO':
+        # ========== TAXA DE ADMINISTRACAO ==========
+        elif fund == 'TAXA DE ADMINISTRACAO':
             if inflow != 0:
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
                 accounting_entries.append(
-                    create_accounting_entry(fees_accounts['Taxa CETIP'][tipo_conta], value, 'C', fund, plan, profile))
+                    create_accounting_entry(fees_accounts['TAXA DE ADMINISTRACAO'][tipo_conta], value, 'C', fund, plan,
+                                            profile))
             elif outflow != 0:
                 accounting_entries.append(
-                    create_accounting_entry(fees_accounts['Taxa CETIP'][tipo_conta], value, 'D', fund, plan, profile))
+                    create_accounting_entry(fees_accounts['TAXA DE ADMINISTRACAO'][tipo_conta], value, 'D', fund, plan,
+                                            profile))
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
 
         # ========== DESPESA DE CUSTO SELIC ==========
@@ -121,9 +148,39 @@ def statement_fee_expenses(df_despesas):
             if inflow != 0:
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
                 accounting_entries.append(
-                    create_accounting_entry(fees_accounts['Despesa de CUSTO SELIC'][tipo_conta], value, 'C', fund, plan, profile))
+                    create_accounting_entry(fees_accounts['DESPESA DE CUSTO SELIC'][tipo_conta], value, 'C', fund, plan,
+                                            profile))
             elif outflow != 0:
                 accounting_entries.append(
-                    create_accounting_entry(fees_accounts['Despesa de CUSTO SELIC'][tipo_conta], value, 'D', fund, plan, profile))
+                    create_accounting_entry(fees_accounts['DESPESA DE CUSTO SELIC'][tipo_conta], value, 'D', fund, plan,
+                                            profile))
                 accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
+
+        # ========== TAXA DE CONTROLADORIA - REMUNERACAO VARIAVEL ==========
+        elif fund == 'TAXA DE CONTROLADORIA (REMUNERACAO VARIAVEL)':
+            if inflow != 0:
+                accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA DE CONTROLADORIA (REMUNERACAO VARIAVEL)'][tipo_conta],
+                                            value, 'C', fund, plan, profile))
+            elif outflow != 0:
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA DE CONTROLADORIA (REMUNERACAO VARIAVEL)'][tipo_conta],
+                                            value, 'D', fund, plan, profile))
+                accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
+
+        # ========== TAXA DE CUSTODIA - REMUNERACAO VARIAVEL ==========
+        elif fund == 'TAXA DE CUSTODIA (REMUNERACAO VARIAVEL)':
+            if inflow != 0:
+                accounting_entries.append(create_accounting_entry(current_wallet, value, 'D', fund, plan, profile))
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA DE CUSTODIA (REMUNERACAO VARIAVEL)'][tipo_conta], value,
+                                            'C', fund, plan, profile))
+            elif outflow != 0:
+                accounting_entries.append(
+                    create_accounting_entry(fees_accounts['TAXA DE CUSTODIA (REMUNERACAO VARIAVEL)'][tipo_conta], value,
+                                            'D', fund, plan, profile))
+                accounting_entries.append(create_accounting_entry(current_wallet, value, 'C', fund, plan, profile))
+
     return pd.DataFrame(accounting_entries)
+

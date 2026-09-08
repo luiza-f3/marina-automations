@@ -41,7 +41,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                     negative_profit_account,
                     abs(income_amount),
                     'D',
-                    f'RENDIMENTO - {fund_name}',
+                    f'RENDIMENTO DAS COTAS DE FUNDO - {fund_name}',
                     plan,
                     profile
                 )
@@ -51,7 +51,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                     updated_cost_account,
                     abs(income_amount),
                     'C',
-                    f'RENDIMENTO - {fund_name}',
+                    f'RENDIMENTO DAS COTAS DE FUNDO - {fund_name}',
                     plan,
                     profile
                 )
@@ -63,7 +63,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                     updated_cost_account,
                     income_amount,
                     'D',
-                    f'RENDIMENTO - {fund_name}',
+                    f'RENDIMENTO DAS COTAS DE FUNDO - {fund_name}',
                     plan,
                     profile
                 )
@@ -73,7 +73,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                     positive_profit_account,
                     income_amount,
                     'C',
-                    f'RENDIMENTO - {fund_name}',
+                    f'RENDIMENTO DAS COTAS DE FUNDO - {fund_name}',
                     plan,
                     profile
                 )
@@ -123,7 +123,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                         wallet_account,
                         abs(entry_amount),
                         'D',
-                        f'RESGATE - {fund_name}',
+                        f'RESGATE DE INVESTIMENTOS - {fund_name}',
                         plan,
                         profile
                     )
@@ -133,7 +133,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                         application_account,
                         abs(entry_amount),
                         'C',
-                        f'RESGATE - {fund_name}',
+                        f'RESGATE DE INVESTIMENTOS - {fund_name}',
                         plan,
                         profile
                     )
@@ -147,7 +147,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                         redemption_account,
                         abs(exit_amount),
                         'D',
-                        f'APLICACAO - {fund_name}',
+                        f'APLICACAO FINANCEIRA - {fund_name}',
                         plan,
                         profile
                     )
@@ -157,7 +157,7 @@ def prepare_accounting_entries(income_df: pd.DataFrame, statements_df: pd.DataFr
                         wallet_account,
                         abs(exit_amount),
                         'C',
-                        f'APLICACAO - {fund_name}',
+                        f'APLICACAO FINANCEIRA - {fund_name}',
                         plan,
                         profile
                     )
